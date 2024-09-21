@@ -14,10 +14,11 @@ fi
 
 # 2. 检查参数
 url=$1
-password=$2
-# 未提供 url 或 password
-if [ -z "$url" ] || [ -z "$password" ]; then
-    echo "Usage: $0 <url> <password>"
+file_name=$2
+password=$3
+# 未提供 url、file_name 或 password 时退出
+if [ -z "$url" ] || [ -z "$file_name" ] || [ -z "$password" ]; then
+    echo "Usage: $0 <url> <file_name> <password>"
     exit 1
 fi
 
@@ -88,20 +89,12 @@ fi
 
 # 6. 下载文件
 echo "===================== Download start ====================="
-# 6.1 获取文件名（用 / 分割，取最后一部分，不使用 basename）
-filename=$(echo "$file_url" | awk -F/ '{print $NF}')
-# 去除末尾的 \r
-filename=$(echo "$filename" | tr -d '\r')
-if [ -z "$filename" ]; then
-    echo "Failed to extract filename from the file URL."
-    exit 1
-fi
 echo "file_url: $file_url"
-# 6.2 请求头的 Cookie 设置为 sfcsrftoken=$sfcsrftoken; sessionid=$sessionid
+# 6.1 请求头的 Cookie 设置为 sfcsrftoken=$sfcsrftoken; sessionid=$sessionid
 header_cookie="sfcsrftoken=$sfcsrftoken; sessionid=$sessionid"
 # 使用 wget 下载文件
-wget --header="Cookie: $header_cookie" "$file_url" -O "$filename"
-# 6.3 检查下载是否成功
+wget --header="Cookie: $header_cookie" "$file_url" -O "$file_name"
+# 6.2 检查是否下载成功
 if [ $? -ne 0 ]; then
     echo "Failed to download the file."
     exit 1
